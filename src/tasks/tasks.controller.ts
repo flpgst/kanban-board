@@ -12,6 +12,8 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { User } from '../users/user.decorator';
+import { User as UserEntity } from '../users/entities/user.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('tasks')
@@ -24,8 +26,8 @@ export class TasksController {
   }
 
   @Get()
-  findAll() {
-    return this.tasksService.findAll();
+  findAll(@User() user: UserEntity) {
+    return this.tasksService.findAll(user);
   }
 
   @Get(':id')
