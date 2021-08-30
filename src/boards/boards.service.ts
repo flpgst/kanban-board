@@ -17,7 +17,9 @@ export class BoardsService {
   }
 
   async findAll() {
-    return await this.boardRepository.find();
+    return await this.boardRepository.find({
+      relations: ['users'],
+    });
   }
 
   async findOne(id: number) {
