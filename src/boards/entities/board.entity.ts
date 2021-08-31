@@ -15,7 +15,7 @@ export class Board {
   @Column()
   name: string;
 
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, { cascade: true })
   @JoinTable()
   users: User[];
 }

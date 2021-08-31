@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
+import { User as UserEntity } from 'src/users/entities/user.entity';
+import { User } from 'src/users/user.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
@@ -19,27 +21,31 @@ export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
   @Post()
-  create(@Body() createBoardDto: CreateBoardDto) {
-    return this.boardsService.create(createBoardDto);
+  create(@Body() createBoardDto: CreateBoardDto, @User() user: UserEntity) {
+    return this.boardsService.create(createBoardDto, user);
   }
 
   @Get()
-  findAll() {
-    return this.boardsService.findAll();
+  findAll(@User() user: UserEntity) {
+    return this.boardsService.findAll(user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.boardsService.findOne(+id);
+  findOne(@Param('id') id: string, @User() user: UserEntity) {
+    return this.boardsService.findOne(+id, user);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBoardDto: UpdateBoardDto) {
-    return this.boardsService.update(+id, updateBoardDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateBoardDto: UpdateBoardDto,
+    @User() user: UserEntity,
+  ) {
+    return this.boardsService.update(+id, updateBoardDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.boardsService.remove(+id);
+  remove(@Param('id') id: string, @User() user: UserEntity) {
+    return this.boardsService.remove(+id, user);
   }
 }
