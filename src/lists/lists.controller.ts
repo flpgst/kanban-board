@@ -12,15 +12,17 @@ import { ListsService } from './lists.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { User as UserEntity } from 'src/users/entities/user.entity';
+import { User } from 'src/users/user.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('lists')
 export class ListsController {
-  constructor(private readonly listsService: ListsService) {}
+  constructor(private readonly listsService: ListsService) { }
 
   @Post()
-  create(@Body() createListDto: CreateListDto) {
-    return this.listsService.create(createListDto);
+  create(@Body() createListDto: CreateListDto, @User() user: UserEntity) {
+    return this.listsService.create(createListDto, user);
   }
 
   @Get()

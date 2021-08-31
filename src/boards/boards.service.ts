@@ -11,7 +11,7 @@ export class BoardsService {
   constructor(
     @InjectRepository(Board)
     private boardRepository: Repository<Board>,
-  ) {}
+  ) { }
 
   async create(createBoardDto: CreateBoardDto, user: User): Promise<Board> {
     const board = {
@@ -34,12 +34,16 @@ export class BoardsService {
   }
 
   async findOne(id: number, user: User) {
-    const board = await this.boardRepository.findOneOrFail(id, {
-      relations: ['users'],
-    });
-    const hasAccess = board.users.find(({ id }) => id === user.id);
-    if (!hasAccess) throw new UnauthorizedException();
-    return board;
+    try {
+      const board = await this.boardRepository.findOneOrFail(id, {
+        relations: ['users'],
+      });
+      const hasAccess = board.users.find(({ id }) => id === user.id);
+      if (!hasAccess) throw new UnauthorizedException();
+      return board;
+    } catch (error) {
+      return error;
+    }
   }
 
   async update(id: number, updateBoardDto: UpdateBoardDto, user: User) {
