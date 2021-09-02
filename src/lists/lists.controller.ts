@@ -18,7 +18,7 @@ import { User } from 'src/users/user.decorator';
 @UseGuards(JwtAuthGuard)
 @Controller('lists')
 export class ListsController {
-  constructor(private readonly listsService: ListsService) { }
+  constructor(private readonly listsService: ListsService) {}
 
   @Post()
   create(@Body() createListDto: CreateListDto, @User() user: UserEntity) {
@@ -26,22 +26,26 @@ export class ListsController {
   }
 
   @Get()
-  findAll() {
-    return this.listsService.findAll();
+  findAll(@User() user: UserEntity) {
+    return this.listsService.findAll(user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.listsService.findOne(+id);
+  findOne(@Param('id') id: string, @User() user: UserEntity) {
+    return this.listsService.findOne(+id, user);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateListDto: UpdateListDto) {
-    return this.listsService.update(+id, updateListDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateListDto: UpdateListDto,
+    @User() user: UserEntity,
+  ) {
+    return this.listsService.update(+id, updateListDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.listsService.remove(+id);
+  remove(@Param('id') id: string, @User() user: UserEntity) {
+    return this.listsService.remove(+id, user);
   }
 }
