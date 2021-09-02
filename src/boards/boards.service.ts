@@ -11,7 +11,7 @@ export class BoardsService {
   constructor(
     @InjectRepository(Board)
     private boardRepository: Repository<Board>,
-  ) { }
+  ) {}
 
   async create(createBoardDto: CreateBoardDto, user: User): Promise<Board> {
     const board = {
