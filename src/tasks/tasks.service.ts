@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { getConnection, Repository } from 'typeorm';
@@ -30,18 +30,35 @@ export class TasksService {
     return tasks;
   }
 
-  async findOne(id: number) {
-    return await this.taskRepository.findOneOrFail(id);
+  async findOne(id: number, user: User) {
+    try {
+      const task = await getConnection()
+        .createQueryBuilder()
+        .select('task')
+        .from(Task, 'task')
+        .leftJoinAndSelect('task.list', 'list')
+        .leftJoinAndSelect('list.board', 'board')
+        .leftJoinAndSelect('board.users', 'users')
+        .andWhere('task.id = :id', { id })
+        .andWhere('users.id = :id', { id: user.id })
+        .getOneOrFail();
+
+      return task;
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
   }
 
-  async update(id: number, updateTaskDto: UpdateTaskDto) {
-    await this.taskRepository.findOneOrFail(id);
+  async update(id: number, updateTaskDto: UpdateTaskDto, user: User) {
+    const task = await this.findOne(id, user);
+    if (task instanceof Error) throw new UnauthorizedException();
     await this.taskRepository.update(id, updateTaskDto);
-    return this.taskRepository.findOne(id);
+    return await this.taskRepository.findOne(id);
   }
 
-  async remove(id: number) {
-    await this.taskRepository.findOneOrFail(id);
+  async remove(id: number, user: User) {
+    const task = await this.findOne(id, user);
+    if (task instanceof Error) throw new UnauthorizedException();
     await this.taskRepository.delete(id);
     return;
   }
