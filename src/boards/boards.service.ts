@@ -59,7 +59,7 @@ export class BoardsService {
     return this.boardRepository.findOne(id);
   }
 
-  async remove(id: number, user: User): Promise<void> {
+  async remove(id: number, user: User): Promise<void | Error> {
     try {
       const board = await this.boardRepository.findOneOrFail(id, {
         relations: ['users'],
