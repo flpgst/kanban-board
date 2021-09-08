@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
-import { getConnection, Repository } from 'typeorm';
+import { User } from '../users/entities/user.entity';
+import { createQueryBuilder, Repository } from 'typeorm';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { Board } from './entities/board.entity';
@@ -22,9 +22,8 @@ export class BoardsService {
     return await this.boardRepository.save(board);
   }
 
-  async findAll(user: User) {
-    const boards = await getConnection()
-      .createQueryBuilder()
+  async findAll(user: User): Promise<Board[]> {
+    const boards = await createQueryBuilder()
       .select('board')
       .from(Board, 'board')
       .leftJoinAndSelect('board.users', 'users')
@@ -33,7 +32,7 @@ export class BoardsService {
     return boards;
   }
 
-  async findOne(id: number, user: User) {
+  async findOne(id: number, user: User): Promise<Board> {
     try {
       const board = await this.boardRepository.findOneOrFail(id, {
         relations: ['users'],
@@ -46,7 +45,11 @@ export class BoardsService {
     }
   }
 
-  async update(id: number, updateBoardDto: UpdateBoardDto, user: User) {
+  async update(
+    id: number,
+    updateBoardDto: UpdateBoardDto,
+    user: User,
+  ): Promise<Board> {
     const board = await this.boardRepository.findOneOrFail(id, {
       relations: ['users'],
     });
@@ -56,13 +59,17 @@ export class BoardsService {
     return this.boardRepository.findOne(id);
   }
 
-  async remove(id: number, user: User) {
-    const board = await this.boardRepository.findOneOrFail(id, {
-      relations: ['users'],
-    });
-    const hasAccess = board.users.find(({ id }) => id === user.id);
-    if (!hasAccess) throw new UnauthorizedException();
-    await this.boardRepository.delete(id);
-    return;
+  async remove(id: number, user: User): Promise<void> {
+    try {
+      const board = await this.boardRepository.findOneOrFail(id, {
+        relations: ['users'],
+      });
+      const hasAccess = board.users.find(({ id }) => id === user.id);
+      if (!hasAccess) throw new UnauthorizedException();
+      await this.boardRepository.delete(id);
+      return;
+    } catch (error) {
+      throw error;
+    }
   }
 }

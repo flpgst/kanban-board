@@ -12,8 +12,8 @@ import { ListsService } from './lists.service';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { User as UserEntity } from 'src/users/entities/user.entity';
-import { User } from 'src/users/user.decorator';
+import { User as UserEntity } from '../users/entities/user.entity';
+import { User } from '../users/user.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('lists')
