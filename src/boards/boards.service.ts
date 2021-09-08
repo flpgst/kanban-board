@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { createQueryBuilder, Repository } from 'typeorm';
@@ -41,7 +45,7 @@ export class BoardsService {
       if (!hasAccess) throw new UnauthorizedException();
       return board;
     } catch (error) {
-      return error;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -49,14 +53,18 @@ export class BoardsService {
     id: number,
     updateBoardDto: UpdateBoardDto,
     user: User,
-  ): Promise<Board> {
-    const board = await this.boardRepository.findOneOrFail(id, {
-      relations: ['users'],
-    });
-    const hasAccess = board.users.find(({ id }) => id === user.id);
-    if (!hasAccess) throw new UnauthorizedException();
-    await this.boardRepository.save({ id, ...updateBoardDto });
-    return this.boardRepository.findOne(id);
+  ): Promise<Board | Error> {
+    try {
+      const board = await this.boardRepository.findOneOrFail(id, {
+        relations: ['users'],
+      });
+      const hasAccess = board.users.find(({ id }) => id === user.id);
+      if (!hasAccess) throw new UnauthorizedException();
+      await this.boardRepository.save({ id, ...updateBoardDto });
+      return this.boardRepository.findOne(id);
+    } catch (error) {
+      throw error.response ? error : new NotFoundException();
+    }
   }
 
   async remove(id: number, user: User): Promise<void | Error> {
