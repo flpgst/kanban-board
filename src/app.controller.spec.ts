@@ -12,11 +12,17 @@ describe('AppController', () => {
     }).compile();
 
     appController = app.get<AppController>(AppController);
+    console.log('appControler :>> ', appController);
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return the logged in user', () => {
+      const user = {
+        id: 1,
+        username: 'admin',
+      };
+
+      expect(appController.getProfile(user).toBe(user));
     });
   });
 });
