@@ -18,4 +18,10 @@ export class Board {
   @ManyToMany(() => User, { cascade: true })
   @JoinTable()
   users: User[];
+
+  constructor(board: Partial<Board>) {
+    this.id = board?.id;
+    this.name = board?.name;
+    this.users = board?.users;
+  }
 }
