@@ -11,4 +11,9 @@ export class List {
 
   @ManyToOne((type) => Board)
   board: Board;
+
+  constructor(name: string, board: Board) {
+    this.name = name;
+    this.board = board;
+  }
 }
