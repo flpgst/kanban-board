@@ -54,7 +54,7 @@ export class ListsService {
     const list = await this.findOne(id, user);
     if (list instanceof Error) throw new UnauthorizedException();
     await this.listRepository.update(id, updateListDto);
-    return this.listRepository.findOne(id);
+    return await this.listRepository.findOne(id);
   }
 
   async remove(id: number, user: User) {
