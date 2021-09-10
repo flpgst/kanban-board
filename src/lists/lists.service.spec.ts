@@ -142,5 +142,45 @@ describe('ListsService', () => {
       // Assert
       expect(result).toEqual(updatedList);
     });
+
+    it('should throw an exception', () => {
+      // Arrange
+      const listDto: UpdateListDto = {
+        name: 'test 2',
+      };
+      jest.spyOn(listService, 'findOne').mockResolvedValue(listEntityList[0]);
+      jest.spyOn(listRepository, 'update').mockRejectedValueOnce(new Error());
+
+      // Act
+      expect(listService.update(1, listDto, user2)).rejects.toThrowError();
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete a list', async () => {
+      // Arrange
+      jest.spyOn(listService, 'findOne').mockResolvedValue(listEntityList[0]);
+      jest
+        .spyOn(listRepository, 'findOne')
+        .mockResolvedValue(listEntityList[0]);
+      jest.spyOn(listRepository, 'delete').mockResolvedValue(undefined);
+
+      // Act
+      const result = await listService.remove(1, user);
+
+      // Assert
+      expect(result).toBeUndefined();
+      expect(listRepository.delete).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw an exception', () => {
+      // Arrange
+      jest.spyOn(listService, 'findOne').mockResolvedValue(listEntityList[0]);
+
+      jest.spyOn(listRepository, 'delete').mockRejectedValueOnce(new Error());
+
+      // Assert
+      expect(listService.remove(1, user)).rejects.toThrowError();
+    });
   });
 });
