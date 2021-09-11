@@ -7,7 +7,6 @@ import { Repository } from 'typeorm';
 import { Task, TaskStatus } from './entities/task.entity';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { getHeapStatistics } from 'v8';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
 const user: User = {
@@ -72,8 +71,8 @@ describe('TasksService', () => {
           useValue: {
             save: jest.fn().mockResolvedValue(taskEntityList[0]),
             update: jest.fn().mockResolvedValue(updatedTask),
-            findOne: jest.fn(),
-            delete: jest.fn(),
+            findOne: jest.fn().mockResolvedValue(taskEntityList[0]),
+            delete: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],
@@ -118,13 +117,10 @@ describe('TasksService', () => {
         list: listEntity,
       };
 
-      jest.spyOn(taskService, 'create').mockRejectedValueOnce(new Error());
-
-      // Act
-      const result = await taskService.create(taskDto);
+      jest.spyOn(taskRepository, 'save').mockRejectedValueOnce(new Error());
 
       // Assert
-      expect(result).rejects.toThrowError();
+      expect(taskService.create(taskDto)).rejects.toThrowError();
     });
   });
 
@@ -143,6 +139,8 @@ describe('TasksService', () => {
       jest
         .spyOn(taskService, 'findOne')
         .mockResolvedValueOnce(taskEntityList[0]);
+
+      jest.spyOn(taskRepository, 'findOne').mockResolvedValueOnce(updatedTask);
 
       // Act
       const result = await taskService.update(1, taskDto, user);
@@ -169,6 +167,22 @@ describe('TasksService', () => {
 
       // Assert
       expect(result).rejects.toThrowError();
+    });
+  });
+  describe('delete', () => {
+    it('should remove a task', () => {
+      // Act
+      const result = taskService.remove(1, user);
+
+      // Assert
+      expect(result).toBeUndefined;
+    });
+    it('should throw an exception', () => {
+      // Arrange
+      jest.spyOn(taskRepository, 'delete').mockRejectedValueOnce(new Error());
+
+      // Assert
+      expect(taskService.remove(1, user)).rejects.toThrowError();
     });
   });
 });
