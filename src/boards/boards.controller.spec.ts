@@ -45,7 +45,7 @@ describe('BoardsController', () => {
             findAll: jest.fn().mockResolvedValue(boardEntityList),
             findOne: jest.fn().mockResolvedValue(boardEntityList[0]),
             update: jest.fn().mockResolvedValue(updatedBoardEntity),
-            remove: jest.fn(),
+            remove: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],
@@ -162,7 +162,7 @@ describe('BoardsController', () => {
 
     it('should throw an exception', () => {
       // Arrange
-      jest.spyOn(boardService, 'remove').mockResolvedValueOnce(new Error());
+      jest.spyOn(boardService, 'remove').mockRejectedValueOnce(new Error());
 
       // Assert
       expect(boardController.remove('1', user)).rejects.toThrowError();
