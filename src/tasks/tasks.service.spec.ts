@@ -170,9 +170,14 @@ describe('TasksService', () => {
     });
   });
   describe('delete', () => {
-    it('should remove a task', () => {
+    it('should remove a task', async () => {
+      //Arrange
+      jest
+        .spyOn(taskService, 'findOne')
+        .mockResolvedValueOnce(taskEntityList[0]);
+
       // Act
-      const result = taskService.remove(1, user);
+      const result = await taskService.remove(1, user);
 
       // Assert
       expect(result).toBeUndefined;
